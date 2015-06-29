@@ -1,0 +1,6 @@
+#! /bin/sh
+
+containerID=$(docker ps -laq)
+containerIP=$(docker inspect $containerID | grep 'IPAddress' | cut -d '"' -f 4)
+
+ssh root@$containerIP

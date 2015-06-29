@@ -1,0 +1,13 @@
+#! /bin/sh
+
+distrib="$1"
+service="$2"
+repoName="$distrib-$service"
+dockerfilePath="$HOME/dockerfiles/$distrib/$service/"
+
+if [ ! -d $dockerfilePath ]; then
+  echo "Directory $dockerfile_path not found"
+  exit
+fi
+
+$EDITOR $dockerfilePath/Dockerfile

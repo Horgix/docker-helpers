@@ -1,0 +1,8 @@
+#! /bin/sh
+
+if [ $# -eq 1 ] && [ $1 = "-f" ]; then
+  docker rm -f $(docker ps -aq)
+else
+  docker rm $(docker ps -aq)
+fi
+

@@ -1,0 +1,6 @@
+#! /bin/sh
+
+containerName=$1
+containerIP=$(docker inspect $containerName | grep 'IPAddress' | cut -d '"' -f 4)
+
+ssh root@$containerIP -o UserKnownHostsFile=/tmp/dockerKnownHosts

@@ -1,0 +1,40 @@
+#! /bin/sh
+
+if [ $# -lt 3 ]; then
+  echo "At least 3 arg are required"
+  exit
+fi
+
+if [ $1 = "--ssh" ]; then
+  sshLatest=1
+  shift
+else
+  sshLatest=0
+fi
+
+if [ $1 = "--fw" ]; then
+  forwarding=1
+  shift
+else
+  forwarding=0
+fi
+
+distrib="$1"
+service="$2"
+containerName="$3"
+repoName=${distrib}-${service}
+#imageID=$(docker images | grep $distrib-$service | awk '{print $3}')
+#echo $imageID
+
+docker run --detach --name="$containerName" --hostname="$containerName" ${repoName}:latest
+
+if [ "$sshLatest" -eq 1 ]; then
+  containerID=$(docker ps -l | tail -n 1 | awk '{print $1}')
+  containerIP=$(docker inspect $containerID | grep 'IPAddress' | cut -d '"' -f 4)
+  if [ "$forwarding" -eq 1 ]; then
+  ssh -o UserKnownHostsFile=/tmp/dockerKnownHosts -o StrictHostKeyChecking=no root@$containerIP -D 2000
+  else
+    ssh -o UserKnownHostsFile=/tmp/dockerKnownHosts -o StrictHostKeyChecking=no root@$containerIP
+  fi
+fi
+

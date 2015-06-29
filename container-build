@@ -1,0 +1,50 @@
+#! /bin/sh
+
+distrib="DISTRIB"
+service="SERVICE"
+repoName="\$distrib-\$service"
+dockerfilePath="$HOME/dockerfiles/\$distrib/\$service/"
+noCache=""
+
+usage() {
+  echo "Usage: `basename $0` [OPTION] $distrib $service"
+  echo "Will generate a docker image with '`eval echo $repoName`' as name."
+  echo "The Dockerfile will be taken from `eval echo $dockerfilePath`/Dockerfile"
+  echo ""
+  echo "Options :"
+  echo -e "\t-n|--nocache|--no-cache\t: Disable cache, rebuild from scratch"
+  exit 1
+}
+
+build() {
+  distrib="$1"
+  service="$2"
+  repoName=`eval echo $distrib-$service`
+  dockerfilePath=`eval echo $dockerfilePath`
+
+  echo "$dockerfilePath"
+
+  if [ ! -d $dockerfilePath ]; then
+    echo "Directory $dockerfilePath not found"
+    exit 2
+  fi
+
+  docker build $noCache --rm -t $repoName $dockerfilePath
+}
+
+while true; do
+  case "$1" in
+    -n|--nocache|--no-cache)
+      noCache="--no-cache"
+      shift
+      ;;
+    *)
+      if [ $# -ne 2 ];
+      then
+        usage
+      fi
+      build $@
+      exit 0
+      ;;
+  esac
+done

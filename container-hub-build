@@ -1,0 +1,21 @@
+#! /bin/sh
+
+distrib="$1"
+service="$2"
+repoName="$distrib-$service"
+dockerfilePath="$HOME/dockerfiles/$distrib/$service/"
+#dockerfile="../dockerfiles/$distrib/$service/Dockerfile"
+
+if [ ! -d $dockerfilePath ]; then
+  echo "Directory $dockerfile_path not found"
+  exit
+fi
+
+cd $dockerfilePath
+
+cd $dockerfilePath
+if [ $3 = "nocache" ]; then
+  docker build --no-cache --rm -t $repoName .
+else
+  docker build --rm -t $repoName .
+fi
