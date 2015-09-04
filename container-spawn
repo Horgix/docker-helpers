@@ -22,7 +22,7 @@ fi
 distrib="$1"
 service="$2"
 containerName="$3"
-repoName=${distrib}-${service}
+repoName=horgix/${distrib}-${service}
 #imageID=$(docker images | grep $distrib-$service | awk '{print $3}')
 #echo $imageID
 

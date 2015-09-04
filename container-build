@@ -29,7 +29,7 @@ build() {
     exit 2
   fi
 
-  docker build $noCache --rm -t $repoName $dockerfilePath
+  docker build $noCache --rm -t horgix/$repoName $dockerfilePath
 }
 
 while true; do
