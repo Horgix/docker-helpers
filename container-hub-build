@@ -1,21 +1,53 @@
 #! /bin/sh
 
-distrib="$1"
-service="$2"
-repoName="$distrib-$service"
-dockerfilePath="$HOME/dockerfiles/$distrib/$service/"
-#dockerfile="../dockerfiles/$distrib/$service/Dockerfile"
+distrib="DISTRIB" # Will be set during build()
+service="SERVICE" # Will be set during build()
+repoName="\$distrib-\$service"
+dockerfilePath="$HOME/dockerfiles/\$distrib/\$service/"
+noCache=""
 
-if [ ! -d $dockerfilePath ]; then
-  echo "Directory $dockerfile_path not found"
-  exit
-fi
+usage() {
+  echo "Usage: `basename $0` [OPTION] $distrib $service"
+  echo "Will generate a docker image with '`eval echo $repoName`' as name."
+  echo "The Dockerfile will be taken from `eval echo $dockerfilePath`/Dockerfile"
+  echo ""
+  echo "Options :"
+  echo -e "\t-n|--nocache|--no-cache\t: Disable cache, rebuild from scratch"
+  exit 1
+}
 
-cd $dockerfilePath
+build() {
+  distrib="$1"
+  service="$2"
+  repoName=`eval echo $distrib-$service`
+  dockerfilePath=`eval echo $dockerfilePath`
 
-cd $dockerfilePath
-if [ $3 = "nocache" ]; then
-  docker build --no-cache --rm -t $repoName .
-else
-  docker build --rm -t $repoName .
-fi
+  echo "$dockerfilePath"
+
+  if [ ! -d $dockerfilePath ]; then
+    echo "Directory $dockerfilePath not found"
+    exit 2
+  fi
+
+
+  curl -H "Content-Type: application/json" --data '{"build": true}' -X POST \
+      https://registry.hub.docker.com/u/horgix/${repoName}/trigger/`pass apikeys/dockerhub/${repoName}`/
+  #docker build $noCache --rm -t $repoName $dockerfilePath
+}
+
+while true; do
+  case "$1" in
+    #-n|--nocache|--no-cache)
+    #  noCache="--no-cache"
+    #  shift
+    #  ;;
+    *)
+      if [ $# -ne 2 ];
+      then
+        usage
+      fi
+      build $@
+      exit 0
+      ;;
+  esac
+done
